@@ -1,14 +1,12 @@
-FROM debian:jessie-slim
+FROM alpine:3.5
 
-RUN apt-get -y update
-RUN apt-get -y install \
-  openssh-server
+RUN apk update && apk add \
+  g++ \
+  cmake \
+  make
 
-RUN useradd -ms /bin/bash build
-RUN echo 'build:build' | chpasswd
+COPY container-utils /container-utils
 
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+RUN sh /container-utils/adduser.sh build
 
-EXPOSE 22
-
-CMD systemctl start ssh.service && systemctl enable ssh.service
+CMD sh /container-utils/start-container.sh
